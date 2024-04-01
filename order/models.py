@@ -10,11 +10,11 @@ class Order(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     total_price = models.DecimalField(validators=[MinValueValidator(0)], max_digits=12, decimal_places=3)
 
-    STATUS_CHOICES = {
-        "PENDING": 'pending',
-        "SHIPPED": 'shipped',
-        "DELIVERED": 'delievered',
-    }
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('SHIPPED', 'Shipped'),
+        ('DELIVERED', 'Delivered'),
+    ]
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
 
