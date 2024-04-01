@@ -13,6 +13,7 @@ from django.db.models import Q, Prefetch
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
+    
     def get_queryset(self):
         queryset = super().get_queryset() 
         category = self.request.query_params.get('category')
@@ -26,9 +27,16 @@ class ProductViewSet(viewsets.ModelViewSet):
         
         queryset = queryset.prefetch_related(Prefetch('image_set', queryset=Image.objects.all(), to_attr='images'))
         return queryset
-
-
-
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            self.perform_destroy(instance)
+        except:
+            return Response({"detail": "Failed to delete the object."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Object deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+    
+    ## http://127.0.0.1:8000/product/1/
 
 
 # GET /api/products/: Get a list of all products.***
