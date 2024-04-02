@@ -14,6 +14,15 @@ from django.db.models import Q, Prefetch,Count,Avg
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
-    
+
+
+    def get_queryset(self):
+        queryset = super().get_queryset() 
+        user = self.request.query_params.get('user')
+        
+        if user :
+            queryset = queryset.filter(Q(user=user ))
+        
+        return queryset
 
 

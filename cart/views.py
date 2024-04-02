@@ -17,9 +17,9 @@ class CartItemViewSet(viewsets.ModelViewSet):
 class CartViewSet(viewsets.ModelViewSet):
     serializer_class = CartSerializer
     queryset = Cart.objects.all()
-
+    
     def get_queryset(self):
         queryset = super().get_queryset() 
         
-        queryset = queryset.prefetch_related(Prefetch('cartitem_set', queryset=CartItem.objects.all(), to_attr='items'))
+        # queryset = queryset.prefetch_related(Prefetch('cartitem_set', queryset=CartItem.objects.all(), to_attr='items'))
         return queryset
