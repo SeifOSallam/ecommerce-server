@@ -5,6 +5,10 @@ from .serializers import SignUpSerializer
 
 
 class SignUp(CreateAPIView):
+    """
+    Register new users
+    """
+
     permission_classes = [permissions.AllowAny]
     serializer_class = SignUpSerializer
 

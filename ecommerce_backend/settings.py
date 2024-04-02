@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # THIRD PARTY
     "rest_framework",
     "rest_framework_simplejwt",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -139,6 +140,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
@@ -147,4 +149,10 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_LIFETIME": timedelta(days=30),
     "SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER": timedelta(days=1),
     "SLIDING_TOKEN_LIFETIME_LATE_USER": timedelta(days=30),
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Ecommerce API Docs",
+    "DESCRIPTION": "An Ecommerce Project using Django",
+    "VERSION": "1.0.0",
 }
