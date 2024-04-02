@@ -9,31 +9,24 @@ class ImageSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     images = ImageSerializer(many=True, read_only=True)
-    
+    average_rate = serializers.SerializerMethodField(source='get_average_rate')
+    total_rates = serializers.SerializerMethodField(source='get_total_rates')
 
-    average_rate = serializers.SerializerMethodField()
-    total_rates = serializers.SerializerMethodField()
-    
     def get_total_rates(self, obj): 
         rates = Rate.objects.filter(product=obj)
-        
+
         total_rates = rates.count()
         
         return total_rates
     
     def get_average_rate(self, obj):
         rates = Rate.objects.filter(product=obj)
-        
+
         total_rates = rates.count()
         sum_of_rates = sum(rate.rate for rate in rates)
-
-        if total_rates > 0:
-            average_rate = sum_of_rates / total_rates
-        else:
-            average_rate = 0
-        
-        return average_rate
-
+        return sum_of_rates / total_rates if total_rates > 0 else 0
+    
     class Meta:
         model = Product
         fields = ('id', 'name', 'description', 'price', 'stock', 'category', 'images', 'average_rate', 'total_rates')
+        
