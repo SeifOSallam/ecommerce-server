@@ -9,7 +9,7 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete = models.RESTRICT)
+    cart = models.ForeignKey(Cart,related_name='items', on_delete = models.RESTRICT)
     product = models.ForeignKey(Product, on_delete = models.RESTRICT)
     quantity = models.PositiveIntegerField(default=1)
 

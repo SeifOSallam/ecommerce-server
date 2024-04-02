@@ -17,3 +17,8 @@ class CartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ('id', 'user', 'items')
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['items'] = CartItemSerializer(instance.items.all(), many=True).data
+        return representation
+
