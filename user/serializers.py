@@ -49,3 +49,11 @@ class SignUpSerializer(serializers.ModelSerializer):
         model = User
         fields = ["username", "first_name", "last_name",
                   "email", "password", "profile_image", "cover_image"]
+
+
+class EmailVerificationSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(max_length=555)
+
+    class Meta:
+        model = User
+        fields = ['token']
