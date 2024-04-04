@@ -10,7 +10,8 @@ class SignUpSerializer(serializers.ModelSerializer):
         max_length=15,
         allow_blank=False,
         required=True,
-        error_messages={"invalid": "Only lower or upper case letters are allowed"},
+        error_messages={
+            "invalid": "Only lower or upper case letters are allowed"},
     )
 
     last_name = serializers.RegexField(
@@ -19,7 +20,8 @@ class SignUpSerializer(serializers.ModelSerializer):
         max_length=15,
         allow_blank=False,
         required=True,
-        error_messages={"invalid": "Only lower or upper case letters are allowed"},
+        error_messages={
+            "invalid": "Only lower or upper case letters are allowed"},
     )
 
     email = serializers.EmailField(required=True)
@@ -32,6 +34,9 @@ class SignUpSerializer(serializers.ModelSerializer):
         required=True,
     )
 
+    profile_image = serializers.ImageField(required=False)
+    cover_image = serializers.ImageField(required=False)
+
     def validate_email(self, value):
         """
         Check if the email already exists in the user database.
@@ -42,4 +47,5 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["username", "first_name", "last_name", "email", "password"]
+        fields = ["username", "first_name", "last_name",
+                  "email", "password", "profile_image", "cover_image"]

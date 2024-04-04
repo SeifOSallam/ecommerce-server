@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from category.models import Category
+from cloudinary.models import CloudinaryField
 # Create your models here.
 
 class Product(models.Model):
@@ -15,7 +16,7 @@ class Product(models.Model):
 
 
 class Image(models.Model):
-    image_url = models.CharField(max_length=50)
+    image_url = CloudinaryField('image')
     product = models.ForeignKey(Product, on_delete=models.RESTRICT)
 
     def __str__(self):

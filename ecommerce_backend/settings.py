@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
-
+import cloudinary
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -156,3 +156,9 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "An Ecommerce Project using Django",
     "VERSION": "1.0.0",
 }
+          
+cloudinary.config( 
+  cloud_name = os.getenv('CLOUD_NAME'), 
+  api_key = os.getenv('API_KEY'), 
+  api_secret = os.getenv('API_SECRET') 
+)
