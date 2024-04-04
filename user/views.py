@@ -1,4 +1,4 @@
-from rest_framework.generics import ListAPIView, GenericAPIView
+from rest_framework.generics import GenericAPIView
 from rest_framework import response, status
 from . import serializers, models
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -6,9 +6,11 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 import jwt
 from .utils import Util
-from django.conf import settings
 from drf_yasg import openapi
 from rest_framework import permissions
+from .models import User
+
+
 class SignUp(GenericAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = serializers.SignUpSerializer
@@ -21,12 +23,14 @@ class SignUp(GenericAPIView):
         user = serializer.data
 
         # getting tokens
-        user_email = models.User.objects.get(email=user['email'])
-        tokens = RefreshToken.for_user(user_email).access_token
+        userId = User.objects.get(id=user['id'])
+        accessToken = RefreshToken.for_user(userId).access_token
+        refreshToken = RefreshToken.for_user(userId)
         # send email for user verification
         current_site = get_current_site(request).domain
         relative_link = reverse('email-verify')
-        absurl = 'http://'+current_site+relative_link+"?token="+str(tokens)
+        absurl = 'http://'+current_site + \
+            relative_link+"?token="+str(accessToken)
         email_body = 'Hi '+user['username'] + \
             ' Use the link below to verify your email \n' + absurl
         data = {'email_body': email_body, 'to_email': user['email'],
@@ -34,7 +38,7 @@ class SignUp(GenericAPIView):
 
         Util.send_email(data=data)
 
-        return response.Response({'user_data': user, 'access_token': str(tokens)}, status=status.HTTP_201_CREATED)
+        return response.Response({'access_token': str(accessToken), 'refresh_token': str(refreshToken)}, status=status.HTTP_201_CREATED)
 
 
 class VerifyEmail(GenericAPIView):
@@ -43,7 +47,6 @@ class VerifyEmail(GenericAPIView):
     token_param_config = openapi.Parameter(
         'token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
 
-   
     def get(self, request):
         token = request.GET.get('token')
         try:
