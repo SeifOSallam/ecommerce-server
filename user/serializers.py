@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
 from .models import User
@@ -45,9 +46,14 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This email is already in use.")
         return value
 
+    def create(self, validated_data):
+        validated_data['password'] = make_password(
+            validated_data.get('password'))
+        return super(SignUpSerializer, self).create(validated_data)
+
     class Meta:
         model = User
-        fields = ["username", "first_name", "last_name",
+        fields = ["id", "username", "first_name", "last_name",
                   "email", "password", "profile_image", "cover_image"]
 
 
