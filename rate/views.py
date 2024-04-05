@@ -13,7 +13,12 @@ from user.models import User
 class RateViewSet(viewsets.ModelViewSet):
     serializer_class = RateSerializer
     queryset = Rate.objects.all()
+    
+    def perform_create(self, serializer):
+        print(self.request.user)
+        serializer.save(user=self.request.user)
 
+        
     # def get_queryset(self):
     #     queryset = super().get_queryset() 
     #     category = self.request.query_params.get('category')

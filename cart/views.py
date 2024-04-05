@@ -13,13 +13,13 @@ class CartItemViewSet(viewsets.ModelViewSet):
     serializer_class = CartItemSerializer
     queryset = CartItem.objects.all()
 
-
 class CartViewSet(viewsets.ModelViewSet):
     serializer_class = CartSerializer
     queryset = Cart.objects.all()
     
-    def get_queryset(self):
-        queryset = super().get_queryset() 
+    def perform_create(self, serializer):
+        print(self.request.user)
+        serializer.save(user=self.request.user)
         
-        # queryset = queryset.prefetch_related(Prefetch('cartitem_set', queryset=CartItem.objects.all(), to_attr='items'))
-        return queryset
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(user=self.request.user)

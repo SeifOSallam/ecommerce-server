@@ -11,17 +11,12 @@ from products.models import Product
 from user.models import User
 from rest_framework import permissions
 
-class IsAdminOrReadOnly(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        if request.user and request.user.is_authenticated:
-            return request.user.is_staff
-        return request.method in permissions.SAFE_METHODS
-
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     queryset = Review.objects.all()
-    # permission_classes = [IsAdminOrReadOnly]
 
- 
+    def perform_create(self, serializer):
+        print(self.request.user)
+        serializer.save(user=self.request.user)
+    
 

@@ -9,29 +9,12 @@ from .models import Product, Image
 from django.http import Http404
 from rest_framework import viewsets, filters
 from django.db.models import Q, Prefetch, Count, Avg
-<<<<<<< HEAD
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import permissions
-=======
 from user.models import IsAdminOrReadOnly
->>>>>>> main
 
-class IsAdminOrReadOnly(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        if request.user and request.user.is_authenticated:
-            return request.user.is_staff
-        return request.method in permissions.SAFE_METHODS
-    
 class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
-<<<<<<< HEAD
-    permission_classes = [IsAdminOrReadOnly]  
-=======
-
->>>>>>> main
     def get_queryset(self):
         queryset = super().get_queryset()
         category = self.request.query_params.get('category')
@@ -84,12 +67,9 @@ class ProductViewSet(viewsets.ModelViewSet):
             total_rates=Count('rate')).order_by('-total_rates')
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-<<<<<<< HEAD
-=======
 
 # POST /api/cart/: Add a product to the user's shopping cart.
 # GET /api/cart/: Get the user's shopping cart.
 # PUT /api/cart/<product_id>/: Update the quantity of a product in the user's shopping cart.
 # DELETE /api/cart/<product_id>/: Remove a product from the user's shopping cart.
 # POST /api/cart/checkout/: Checkout the user's shopping cart.
->>>>>>> main
