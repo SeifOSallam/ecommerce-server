@@ -25,4 +25,10 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    product = models.ForeignKey()
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+
+    class Meta():
+        unique_together = (('order', 'product'))
