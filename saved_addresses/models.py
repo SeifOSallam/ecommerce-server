@@ -9,4 +9,4 @@ class SavedAddresses(models.Model):
     mobile_number = models.CharField(max_length=50)
     additional_desc = models.CharField(max_length=50)
 
-    user = models.ForeignKey(User, on_delete=models.RESTRICT)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)

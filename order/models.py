@@ -5,7 +5,7 @@ from django.utils import timezone
 from cart.models import Cart
 from saved_addresses.models import SavedAddresses
 from user.models import User
-
+from products.models import Product
 # Create your models here.
 
 
@@ -20,6 +20,15 @@ class Order(models.Model):
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
 
-    cart = models.ForeignKey(Cart, on_delete=models.RESTRICT)
-    user = models.ForeignKey(User, on_delete=models.RESTRICT)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     saved_address = models.ForeignKey(SavedAddresses, on_delete=models.RESTRICT)
+
+
+class OrderItem(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+
+    class Meta():
+        unique_together = (('order', 'product'))
