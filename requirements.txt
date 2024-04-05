@@ -18,6 +18,7 @@ jsonschema-specifications==2023.12.1
 mysqlclient==2.2.4
 oauthlib==3.2.2
 packaging==24.0
+pillow==10.3.0
 pip-autoremove==0.10.0
 pycparser==2.22
 PyJWT==2.8.0
