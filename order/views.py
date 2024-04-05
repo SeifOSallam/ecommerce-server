@@ -17,9 +17,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
 
-
     def get_queryset(self):
-        queryset = super().get_queryset() 
+        queryset = super().get_queryset().filter(user=self.request.user)
         user = self.request.query_params.get('user')
         
         if user :
@@ -27,6 +26,10 @@ class OrderViewSet(viewsets.ModelViewSet):
         
         return queryset
     
+    def perform_create(self, serializer):
+        print(self.request.user)
+        serializer.save(user=self.request.user)
+        
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)

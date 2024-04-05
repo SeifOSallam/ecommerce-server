@@ -19,4 +19,5 @@ urlpatterns = [
     path('rate/',include('rate.urls')),
     path('cart/',include('cart.urls')),
     path('order/',include('order.urls')),
+    path('review/',include('review.urls')),
 ]

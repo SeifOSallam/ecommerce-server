@@ -6,3 +6,4 @@ class RateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rate
         fields = ('id', 'product', 'rate', 'user')
+        read_only_fields = ['user']  
