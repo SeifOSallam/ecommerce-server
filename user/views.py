@@ -1,6 +1,7 @@
 import jwt
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
+from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.generics import GenericAPIView
@@ -24,6 +25,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return [CreateOnly()]
         return super().get_permissions()
 
+    @extend_schema(exclude=True)
     def list(self, request, *args, **kwargs):
         raise MethodNotAllowed(request.method)
 
@@ -62,12 +64,22 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class MeView(APIView):
+    """
+    Retrieve logged in user data
+    """
+
+    @extend_schema(responses={200: UserSerializer})
     def get(self, request):
         serialzier = UserSerializer(request.user)
         return Response(serialzier.data, status=status.HTTP_200_OK)
 
 
 class VerifyEmail(GenericAPIView):
+    """
+    Verify user's email.
+    Intended to be used through link sent to your regeistered email
+    """
+
     serializer_class = EmailVerificationSerializer
 
     def get(self, request):
