@@ -15,6 +15,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
+
     def get_queryset(self):
         queryset = super().get_queryset()
         category = self.request.query_params.get('category')
@@ -51,6 +52,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         queryset = queryset.prefetch_related(
             Prefetch('image_set', queryset=Image.objects.all(), to_attr='images'))
+        
         return queryset
 
     def destroy(self, request, *args, **kwargs):
