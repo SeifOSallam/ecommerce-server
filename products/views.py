@@ -11,12 +11,10 @@ from rest_framework import viewsets, filters
 from django.db.models import Q, Prefetch, Count, Avg
 from user.models import IsAdminOrReadOnly
 
-
 class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
-
     def get_queryset(self):
         queryset = super().get_queryset()
         category = self.request.query_params.get('category')

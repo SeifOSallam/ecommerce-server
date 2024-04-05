@@ -9,10 +9,12 @@ from .models import Category
 from django.http import Http404
 from rest_framework import viewsets,filters
 from django.db.models import Q, Prefetch
+from user.models import IsAdminOrReadOnly
 
 class  CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
     
     def get_queryset(self):
         queryset = super().get_queryset() 
