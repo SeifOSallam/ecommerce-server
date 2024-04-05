@@ -1,12 +1,12 @@
+from cloudinary.models import CloudinaryField
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from cloudinary.models import CloudinaryField
 from rest_framework import permissions
 
 
 class User(AbstractUser):
-    profile_image = CloudinaryField('profile_image', null=True)
-    cover_image = CloudinaryField('cover_image', null=True)
+    profile_image = CloudinaryField("profile_image", null=True)
+    cover_image = CloudinaryField("cover_image", null=True)
     is_verified = models.BooleanField(default=False)
 
 
