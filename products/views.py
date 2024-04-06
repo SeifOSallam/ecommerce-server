@@ -12,6 +12,8 @@ from django.db.models import Q, Prefetch, Count, Avg
 from user.models import IsAdminOrReadOnly
 from review.models import Review
 from review.serializer import ReviewSerializer
+from rest_framework.permissions import IsAuthenticated
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
@@ -78,7 +80,25 @@ class ProductViewSet(viewsets.ModelViewSet):
         except:
             return Response({"detail": "Failed to delete the object."}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"detail": "Object deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
-
+    
+    def get_permissions(self):
+        if self.action in ['add_review']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminOrReadOnly]  
+        return [permission() for permission in permission_classes]
+    
+    @action(detail=True, methods=['post'])
+    def add_review(self, request, pk=None):
+        product = self.get_object()
+        request.data['product'] = product.id
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=self.request.user)
+            serializer.save(product=product)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     @action(detail=False, methods=['get'])
     def popular_products(self, request):
         queryset = self.get_queryset().annotate(
