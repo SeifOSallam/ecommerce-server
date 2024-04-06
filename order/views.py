@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from .serializer import OrderSerializer, OrderItemSerializer
-from rest_framework import viewsets,filters
+from rest_framework import viewsets, filters, status
 from django.db.models import Q, Prefetch
 from .models import Order, SavedAddresses, OrderItem, Product
 from saved_addresses.serializer import SavedAddressesSerializer
 from products.serializer import ProductSerializer
+from rest_framework.decorators import action
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
@@ -48,6 +49,18 @@ class OrderViewSet(viewsets.ModelViewSet):
         data['saved_address'] = saved_address_serializer.data
 
         return Response(data)
+
+    @action(detail=True, methods=['post'])
+    def cancel_order(self, request, pk=None):
+        order = self.get_object()
+        if (order.status == "DELIVERED" or order.status == "CANCELED"):
+            return Response({'message': 'Order cannot be canceled'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        order.status = 'CANCELED'
+        order.save()
+        return Response({'message': 'Order cancelled successfully'})
+
 
 class OrderItemViewSet(viewsets.ModelViewSet):
     serializer_class = OrderItemSerializer
