@@ -10,11 +10,14 @@ from django.http import Http404
 from rest_framework import viewsets, filters
 from django.db.models import Q, Prefetch, Count, Avg
 from user.models import IsAdminOrReadOnly
+from review.models import Review
+from review.serializer import ReviewSerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
+
     def get_queryset(self):
         queryset = super().get_queryset()
         category = self.request.query_params.get('category')
@@ -51,8 +54,23 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         queryset = queryset.prefetch_related(
             Prefetch('image_set', queryset=Image.objects.all(), to_attr='images'))
+        
         return queryset
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
 
+        # Retrieve reviews associated with the product
+        reviews = Review.objects.filter(product=instance)
+        review_serializer = ReviewSerializer(reviews, many=True)
+
+        # Add reviews to the response data
+        data = serializer.data
+        data['reviews'] = review_serializer.data
+
+        return Response(data)
+    
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         try:

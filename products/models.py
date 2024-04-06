@@ -19,5 +19,5 @@ class Image(models.Model):
     image_url = CloudinaryField('image')
     product = models.ForeignKey(Product, on_delete=models.RESTRICT)
 
-    def __str__(self):
-        return self.image_url
+    # def __str__(self):
+    #     return self.image_url

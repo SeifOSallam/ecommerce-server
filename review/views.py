@@ -10,13 +10,16 @@ from .models import Review
 from products.models import Product
 from user.models import User
 from rest_framework import permissions
+from django.db.models import F, Value, CharField
+from django.db.models.functions import Concat
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     queryset = Review.objects.all()
-
+    
+    
     def perform_create(self, serializer):
         print(self.request.user)
         serializer.save(user=self.request.user)
     
-
+    
