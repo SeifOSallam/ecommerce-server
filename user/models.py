@@ -8,7 +8,7 @@ class User(AbstractUser):
     profile_image = CloudinaryField("profile_image", null=True)
     cover_image = CloudinaryField("cover_image", null=True)
     is_verified = models.BooleanField(default=False)
-
+    
 
 class IsAdminOrReadOnly(permissions.BasePermission):
 

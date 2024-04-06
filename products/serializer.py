@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Product, Image
 from rate.models import Rate
+from review.serializer import ReviewSerializer
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,5 +29,5 @@ class ProductSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Product
-        fields = ('id', 'name', 'description', 'price', 'stock', 'category', 'images', 'average_rate', 'total_rates')
+        fields = ('id', 'name', 'description', 'price', 'stock', 'category', 'images','average_rate', 'total_rates')
         
