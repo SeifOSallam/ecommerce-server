@@ -3,11 +3,17 @@ from .models import Cart, CartItem
 from products.serializer import ProductSerializer
 
 class CartItemSerializer(serializers.ModelSerializer):
-    # product = ProductSerializer(read_only=True)
 
     class Meta:
         model = CartItem
-        fields = ('cart', 'quantity', 'product')
+        fields = ('id', 'cart', 'quantity', 'product')
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        product_data = instance.product
+        product_serializer = ProductSerializer(product_data)
+        representation['product'] = product_serializer.data
+        return representation
 
 
 class CartSerializer(serializers.ModelSerializer):

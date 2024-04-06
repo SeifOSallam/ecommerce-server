@@ -1,17 +1,11 @@
 from django.shortcuts import render
-from django.http.response import HttpResponse, JsonResponse
-from rest_framework.decorators import api_view,action
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from .serializer import OrderSerializer
-from .models import Order
-from django.http import Http404
+from .serializer import OrderSerializer, OrderItemSerializer
 from rest_framework import viewsets,filters
-from django.db.models import Q, Prefetch,Count,Avg
-from .models import Order, Cart, User, SavedAddresses
-from cart.serializer import CartSerializer
+from django.db.models import Q, Prefetch
+from .models import Order, SavedAddresses, OrderItem, Product
 from saved_addresses.serializer import SavedAddressesSerializer
+from products.serializer import ProductSerializer
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
@@ -24,6 +18,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         if user :
             queryset = queryset.filter(Q(user=user))
         
+        queryset = queryset.prefetch_related(
+            Prefetch('orderitem_set', queryset=OrderItem.objects.all(), to_attr='items'))
+
         return queryset
     
     def perform_create(self, serializer):
@@ -52,3 +49,33 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         return Response(data)
 
+class OrderItemViewSet(viewsets.ModelViewSet):
+    serializer_class = OrderItemSerializer
+    queryset = OrderItem.objects.all()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        for orderitem_data in serializer.data:
+            product = Product.objects.get(pk=orderitem_data['product'])
+            product_serializer = ProductSerializer(product)
+            orderitem_data['product'] = product_serializer.data
+
+        return Response(serializer.data)
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        product = Product.objects.get(pk=instance.product_id)
+        product_serializer = ProductSerializer(product)
+        data = serializer.data
+        data['product'] = product_serializer.data
+
+        return Response(data)

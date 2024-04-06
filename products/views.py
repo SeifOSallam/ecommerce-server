@@ -25,18 +25,17 @@ class ProductViewSet(viewsets.ModelViewSet):
         category = self.request.query_params.get('category')
         name = self.request.query_params.get('name')
         rate_gt = self.request.query_params.get('rate_gt')
-        rate_lt = self.request.query_params.get('rate_lt')
+        rate_lte = self.request.query_params.get('rate_lt')
         price_gt = self.request.query_params.get('price_gt')
         price_lt = self.request.query_params.get('price_lt')
-
         # product/?rate_gt=1&rate_lt=4
         if rate_gt:
             queryset = queryset.annotate(avg_rate=Avg(
                 'rate__rate')).filter(avg_rate__gt=float(rate_gt))
 
-        if rate_lt:
+        if rate_lte:
             queryset = queryset.annotate(avg_rate=Avg(
-                'rate__rate')).filter(avg_rate__lt=float(rate_lt))
+                'rate__rate')).filter(avg_rate__lte=float(rate_lte))
 
         # product/?price_gt=1&price_lt=4
         if price_gt:
@@ -52,10 +51,10 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         if name:
             queryset = queryset.filter(
-                Q(name__icontains=name) | Q(description__icontains=name))
+                Q(name__icontains=name) )
 
-        queryset = queryset.prefetch_related(
-            Prefetch('image_set', queryset=Image.objects.all(), to_attr='images'))
+        # queryset = queryset.prefetch_related(
+        #     Prefetch('image_set', queryset=Image.objects.all(), to_attr='images'))
         
         return queryset
     
@@ -88,13 +87,26 @@ class ProductViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAdminOrReadOnly]  
         return [permission() for permission in permission_classes]
     
+    # @action(detail=True, methods=['post'])
+    # def add_review(self, request, pk=None):
+    #     product = self.get_object()
+    #     request.data['product'] = product.id
+    #     serializer = ReviewSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save(user=self.request.user)
+    #         serializer.save(product=product)
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     @action(detail=True, methods=['post'])
     def add_review(self, request, pk=None):
+        print(request.data)
+        print(request.user)
         product = self.get_object()
-        request.data['product'] = product.id
-        serializer = ReviewSerializer(data=request.data)
+        mutable_data = request.data.copy() 
+        mutable_data['product'] = product.id 
+        serializer = ReviewSerializer(data=mutable_data)
         if serializer.is_valid():
-            serializer.save(user=self.request.user)
+            serializer.save(user=request.user)
             serializer.save(product=product)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
