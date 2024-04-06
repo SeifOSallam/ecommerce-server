@@ -6,3 +6,4 @@ class SavedAddressesSerializer(serializers.ModelSerializer):
     class Meta:
         model = SavedAddresses
         fields ="__all__"
+        read_only_fields = ['user']

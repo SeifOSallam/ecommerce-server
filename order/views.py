@@ -35,11 +35,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
 
         for order_data in serializer.data:
-            cart = Cart.objects.get(pk=order_data['cart'])
             saved_address = SavedAddresses.objects.get(pk=order_data['saved_address'])
-            cart_serializer = CartSerializer(cart)
             saved_address_serializer = SavedAddressesSerializer(saved_address)
-            order_data['cart'] = cart_serializer.data
             order_data['saved_address'] = saved_address_serializer.data
 
         return Response(serializer.data)
@@ -48,12 +45,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
 
-        cart = Cart.objects.get(pk=instance.cart_id)
         saved_address = SavedAddresses.objects.get(pk=instance.saved_address_id)
-        cart_serializer = CartSerializer(cart)
         saved_address_serializer = SavedAddressesSerializer(saved_address)
         data = serializer.data
-        data['cart'] = cart_serializer.data
         data['saved_address'] = saved_address_serializer.data
 
         return Response(data)
