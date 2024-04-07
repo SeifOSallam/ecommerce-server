@@ -8,6 +8,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from .models import User
 from .permissions import CreateOnly, IsOwner
@@ -18,6 +19,7 @@ from .utils import Util
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    parser_classes = (FormParser,MultiPartParser)
     permission_classes = [IsOwner]
 
     def get_permissions(self):
@@ -30,6 +32,7 @@ class UserViewSet(viewsets.ModelViewSet):
         raise MethodNotAllowed(request.method)
 
     def create(self, request):
+        print(request.data)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -42,7 +45,8 @@ class UserViewSet(viewsets.ModelViewSet):
         # send email for user verification
         current_site = get_current_site(request).domain
         relative_link = reverse("email-verify")
-        absurl = "http://" + current_site + relative_link + "?token=" + str(accessToken)
+        absurl = "http://" + current_site + \
+            relative_link + "?token=" + str(accessToken)
         email_body = (
             "Hi "
             + user["username"]
@@ -58,7 +62,8 @@ class UserViewSet(viewsets.ModelViewSet):
         Util.send_email(data=data)
 
         return Response(
-            {"access_token": str(accessToken), "refresh_token": str(refreshToken)},
+            {"access_token": str(accessToken),
+             "refresh_token": str(refreshToken)},
             status=status.HTTP_201_CREATED,
         )
 

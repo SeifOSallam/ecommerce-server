@@ -33,7 +33,8 @@ class UserSerializer(serializers.ModelSerializer):
         max_length=15,
         allow_blank=False,
         required=True,
-        error_messages={"invalid": "Only lower or upper case letters are allowed"},
+        error_messages={
+            "invalid": "Only lower or upper case letters are allowed"},
     )
 
     last_name = serializers.RegexField(
@@ -42,7 +43,8 @@ class UserSerializer(serializers.ModelSerializer):
         max_length=15,
         allow_blank=False,
         required=True,
-        error_messages={"invalid": "Only lower or upper case letters are allowed"},
+        error_messages={
+            "invalid": "Only lower or upper case letters are allowed"},
     )
 
     password = serializers.RegexField(
@@ -53,6 +55,9 @@ class UserSerializer(serializers.ModelSerializer):
         },
     )
 
+    profile_image = serializers.ImageField(required=False)
+    cover_image = serializers.ImageField(required=False)
+
     def validate_email(self, value):
         """
         Check if the email already exists in the user database.
@@ -62,7 +67,8 @@ class UserSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        validated_data["password"] = make_password(validated_data.get("password"))
+        validated_data["password"] = make_password(
+            validated_data.get("password"))
         return super(UserSerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
