@@ -13,7 +13,7 @@ from user.models import IsAdminOrReadOnly
 from review.models import Review
 from review.serializer import ReviewSerializer
 from rest_framework.permissions import IsAuthenticated
-
+from .serializer import ImageSerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
@@ -65,10 +65,9 @@ class ProductViewSet(viewsets.ModelViewSet):
         # Retrieve reviews associated with the product
         reviews = Review.objects.filter(product=instance)
         review_serializer = ReviewSerializer(reviews, many=True)
-
-        # Add reviews to the response data
         data = serializer.data
         data['reviews'] = review_serializer.data
+        # data['images'] =  images_serializer.data
 
         return Response(data)
     
