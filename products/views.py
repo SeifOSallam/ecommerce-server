@@ -13,7 +13,7 @@ from user.models import IsAdminOrReadOnly
 from review.models import Review
 from review.serializer import ReviewSerializer
 from rest_framework.permissions import IsAuthenticated
-
+from .serializer import ImageSerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
@@ -53,8 +53,8 @@ class ProductViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(
                 Q(name__icontains=name) )
 
-        # queryset = queryset.prefetch_related(
-        #     Prefetch('image_set', queryset=Image.objects.all(), to_attr='images'))
+        queryset = queryset.prefetch_related(
+        Prefetch('image_set', queryset=Image.objects.all(), to_attr='images'))
         
         return queryset
     
@@ -69,6 +69,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         # Add reviews to the response data
         data = serializer.data
         data['reviews'] = review_serializer.data
+        data['images'] = serializer.data['images']
 
         return Response(data)
     
