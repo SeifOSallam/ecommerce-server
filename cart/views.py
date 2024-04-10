@@ -6,20 +6,32 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status,viewsets,filters
-from .serializer import CartSerializer,CartItemSerializer
-from .models import Cart,CartItem,Product
+from .serializer import CartItemSerializer
+from .models import CartItem,Product
 from products.serializer import ProductSerializer
+from user.models import User
+from rest_framework.generics import ListAPIView
 
 class CartItemViewSet(viewsets.ModelViewSet):
     serializer_class = CartItemSerializer
     queryset = CartItem.objects.all()
+    
+    def perform_create(self, serializer):
+        user = self.request.user
+        serializer.save(user=user)
+        return super().perform_create(serializer)
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = self.queryset.filter(user=user)
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
 
         for cartitem_data in serializer.data:
-            product = Product.objects.get(pk=cartitem_data['product'])
+            product = Product.objects.get(pk=cartitem_data['product'].get('id'))
             product_serializer = ProductSerializer(product)
             cartitem_data['product'] = product_serializer.data
 
@@ -36,16 +48,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
         return Response(data)
 
-class CartViewSet(viewsets.ModelViewSet):
-    serializer_class = CartSerializer
-    queryset = Cart.objects.all()
-    
-    def perform_create(self, serializer):
-        print(self.request.user)
-        serializer.save(user=self.request.user)
-        
-    def get_queryset(self):
-        queryset = super().get_queryset().filter(user=self.request.user)
 
-        return queryset
+
+
     
