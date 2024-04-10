@@ -2,7 +2,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 
-from cart.models import Cart
+
 from saved_addresses.models import SavedAddresses
 from user.models import User
 from products.models import Product
