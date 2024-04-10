@@ -13,6 +13,7 @@ urlpatterns = [
     path("order/", include("order.urls")),
     path("review/", include("review.urls")),
     path("address/", include("saved_addresses.urls")),
+    path("wish_list/", include("wish_list.urls")),
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/schema/", SpectacularAPIView.as_view(), name="api_schema"),
