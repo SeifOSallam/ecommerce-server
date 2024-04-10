@@ -8,4 +8,5 @@ class WishList(models.Model):
     customer = models.ForeignKey(User, on_delete=models.RESTRICT)
     product = models.ForeignKey(Product, on_delete=models.RESTRICT)
 
-    
+    class Meta():
+        unique_together = (('customer', 'product'))
