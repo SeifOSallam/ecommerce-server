@@ -49,7 +49,7 @@ class UserViewSet(viewsets.ModelViewSet):
         refreshToken = RefreshToken.for_user(userId)
         # send email for user verification
         relative_link = reverse("verify-email")
-        absurl = f"${os.getenv("FRONT_URL")}/${relative_link}"
+        absurl = f"{os.getenv('FRONT_URL')}/{relative_link}"
         email_body = (
             "Hi "
             + user["username"]
