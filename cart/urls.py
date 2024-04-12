@@ -9,6 +9,8 @@ router.register('', views.CartItemViewSet, basename='cart')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('clear/',
+         views.CartItemViewSet.as_view({'delete': 'clear'}), name='clear'),
 ]
 
 
