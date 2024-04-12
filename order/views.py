@@ -7,6 +7,37 @@ from .models import Order, SavedAddresses, OrderItem, Product
 from saved_addresses.serializer import SavedAddressesSerializer
 from products.serializer import ProductSerializer
 from rest_framework.decorators import action
+from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from  rest_framework import status
+from django.shortcuts import redirect
+import stripe, os
+
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+url = os.getenv("FRONT_URL")
+
+class StripeCheckoutView(APIView):
+    def post(self, request):
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                line_items=[
+                    {
+                        'price': 'price_1P4djx03YeN96iJ6kaJD768g',
+                        'quantity': 1,
+                    },
+                ],
+                payment_method_types=['card'],
+                mode='payment',
+                success_url = url + '?success=true&session_id={CHECKOUT_SESSION_ID}',
+                cancel_url = url + '?canceled=true',
+            )
+            return redirect(checkout_session.url)
+        except :
+            return Response(
+                {'error': 'Invalid Transaction'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer

@@ -3,6 +3,8 @@ from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken.views import obtain_auth_token
+from .views import StripeCheckoutView
+
 
 router = DefaultRouter()
 router.register('',views.OrderViewSet)
@@ -12,4 +14,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('<pk>/cancel', 
         views.OrderViewSet.as_view({'post': 'cancel_order'}), name='cancel_order'),
+    path('checkout',StripeCheckoutView.as_view()),
 ]
