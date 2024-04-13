@@ -48,8 +48,7 @@ class UserViewSet(viewsets.ModelViewSet):
         accessToken = RefreshToken.for_user(userId).access_token
         refreshToken = RefreshToken.for_user(userId)
         # send email for user verification
-        relative_link = reverse("verify-email")
-        absurl = f"{os.getenv('FRONT_URL')}/{relative_link}"
+        absurl = f"{os.getenv('FRONT_URL')}/verify-email/{accessToken}"
         email_body = (
             "Hi "
             + user["username"]
@@ -98,8 +97,7 @@ class SendEmailVerification(GenericAPIView):
         token = jwt.encode(
             {"user_id": user.pk}, os.getenv("SECRET_KEY"), algorithm="HS256"
         )
-        relative_link = "verify-email"
-        absurl = f"{os.getenv('FRONT_URL')}/{relative_link}/{token}"
+        absurl = f"{os.getenv('FRONT_URL')}/verify-email/{token}"
         email_body = (
             "Hello, \n Use link below to verify your email \n"
             + absurl
