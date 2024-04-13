@@ -13,7 +13,6 @@ from user.models import IsAdminOrReadOnly
 from review.models import Review
 from review.serializer import ReviewSerializer
 from rest_framework.permissions import IsAuthenticated
-from .serializer import ImageSerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
@@ -88,20 +87,9 @@ class ProductViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAdminOrReadOnly]  
         return [permission() for permission in permission_classes]
     
-    # @action(detail=True, methods=['post'])
-    # def add_review(self, request, pk=None):
-    #     product = self.get_object()
-    #     request.data['product'] = product.id
-    #     serializer = ReviewSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save(user=self.request.user)
-    #         serializer.save(product=product)
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     @action(detail=True, methods=['post'])
     def add_review(self, request, pk=None):
-        print(request.data)
-        print(request.user)
         product = self.get_object()
         mutable_data = request.data.copy() 
         mutable_data['product'] = product.id 
@@ -115,12 +103,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def popular_products(self, request):
         queryset = self.get_queryset().annotate(
-            total_rates=Count('rate')).order_by('-total_rates')
+            total_rates=Count('rate')).order_by('-total_rates')[:10]
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
-# POST /api/cart/: Add a product to the user's shopping cart.
-# GET /api/cart/: Get the user's shopping cart.
-# PUT /api/cart/<product_id>/: Update the quantity of a product in the user's shopping cart.
-# DELETE /api/cart/<product_id>/: Remove a product from the user's shopping cart.
-# POST /api/cart/checkout/: Checkout the user's shopping cart.
