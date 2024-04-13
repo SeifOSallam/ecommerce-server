@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "saved_addresses.apps.SavedAddressesConfig",
     "user",
     "wish_list.apps.WishListConfig",
+    "payment.apps.PaymentConfig",
     ####################
     # THIRD PARTY
     "rest_framework",
