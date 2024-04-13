@@ -101,9 +101,9 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
 
         for orderitem_data in serializer.data:
-            product = Product.objects.get(pk=orderitem_data['product'])
+            product = Product.objects.get(pk=orderitem_data["product"])
             product_serializer = ProductSerializer(product)
-            orderitem_data['product'] = product_serializer.data
+            orderitem_data["product"] = product_serializer.data
 
         return Response(serializer.data)
 
@@ -114,6 +114,6 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         product = Product.objects.get(pk=instance.product_id)
         product_serializer = ProductSerializer(product)
         data = serializer.data
-        data['product'] = product_serializer.data
+        data["product"] = product_serializer.data
 
         return Response(data)
