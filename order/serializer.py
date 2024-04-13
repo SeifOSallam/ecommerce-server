@@ -37,4 +37,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "address_mobile",
             "address_desc",
         )
-        read_only_fields = ["user"]
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "user": {"read_only": True},
+            "total_price": {"required": False},
+        }

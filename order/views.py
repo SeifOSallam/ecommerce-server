@@ -1,46 +1,15 @@
-from django.shortcuts import render
-from rest_framework.response import Response
-from .serializer import OrderSerializer, OrderItemSerializer
-from rest_framework import viewsets, filters, status
-from django.db.models import Q, Prefetch
-from .models import Order, SavedAddresses, OrderItem, Product
-from saved_addresses.serializer import SavedAddressesSerializer
-from products.serializer import ProductSerializer
+from datetime import datetime, timedelta
+
+from django.db.models import Prefetch, Q
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from django.conf import settings
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from django.shortcuts import redirect
-import stripe
-import os
 
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
-url = os.getenv("FRONT_URL")
+from cart.models import CartItem
+from products.serializer import ProductSerializer
 
-
-class StripeCheckoutView(APIView):
-    def post(self, request):
-        try:
-            checkout_session = stripe.checkout.Session.create(
-                line_items=[
-                    {
-                        'price': 'price_1P4djx03YeN96iJ6kaJD768g',
-                        'quantity': 1,
-                    },
-                ],
-                payment_method_types=['card'],
-                mode='payment',
-                success_url=url +
-                '?success=true&session_id={CHECKOUT_SESSION_ID}',
-                cancel_url=url + '?canceled=true',
-            )
-            return redirect(checkout_session.url)
-        except:
-            return Response(
-                {'error': 'Invalid Transaction'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+from .models import Order, OrderItem, Product
+from .serializer import OrderItemSerializer, OrderSerializer
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -49,72 +18,73 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(user=self.request.user)
-        user = self.request.query_params.get('user')
+        user = self.request.query_params.get("user")
 
         if user:
             queryset = queryset.filter(Q(user=user))
 
         queryset = queryset.prefetch_related(
-            Prefetch('orderitem_set', queryset=OrderItem.objects.all(), to_attr='items'))
+            Prefetch("orderitem_set", queryset=OrderItem.objects.all(), to_attr="items")
+        )
 
         return queryset
 
-    def perform_create(self, serializer):
-        line_items = self.request.data['orderitem_data'].map(lambda item: {
-            'price': item['product'].price,
-            'quantity': item['quantity'],
-        })
-        try:
-            checkout_session = stripe.checkout.Session.create(
-                line_items,
-                payment_method_types=['card'],
-                mode='payment',
-                success_url=url +
-                '?success=true&session_id={CHECKOUT_SESSION_ID}',
-                cancel_url=url + '?canceled=true',
-            )
-            serializer.save(user=self.request.user)
-            return redirect(checkout_session.url)
-        except:
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        cart_items = CartItem.objects.filter(user=request.user)
+
+        if len(cart_items) == 0:
             return Response(
-                {'error': 'Invalid Transaction'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"message": "Cart is Empty"}, status=status.HTTP_400_BAD_REQUEST
             )
+
+        total_price = 0
+        for item in cart_items:
+            total_price += item.product.price * item.quantity
+
+        serializer.validated_data["total_price"] = total_price
+        serializer.validated_data["delivery_date"] = datetime.now() + timedelta(days=3)
+        serializer.validated_data["user"] = request.user
+
+        order = serializer.save()
+
+        for item in cart_items:
+            OrderItem.objects.create(
+                product=item.product, order=order, quantity=item.quantity
+            )
+            item.product.stock -= item.quantity
+            item.product.save()
+
+        cart_items.delete()
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+        )
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
-
-        for order_data in serializer.data:
-            saved_address = SavedAddresses.objects.get(
-                pk=order_data['saved_address'])
-            saved_address_serializer = SavedAddressesSerializer(saved_address)
-            order_data['saved_address'] = saved_address_serializer.data
-
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
-        saved_address = SavedAddresses.objects.get(
-            pk=instance.saved_address_id)
-        saved_address_serializer = SavedAddressesSerializer(saved_address)
-        data = serializer.data
-        data['saved_address'] = saved_address_serializer.data
-
-        return Response(data)
-
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def cancel_order(self, request, pk=None):
         order = self.get_object()
-        if (order.status == "DELIVERED" or order.status == "CANCELED"):
-            return Response({'message': 'Order cannot be canceled'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        if order.status == "DELIVERED" or order.status == "CANCELED":
+            return Response(
+                {"message": "Order cannot be canceled"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        order.status = 'CANCELED'
+        order.status = "CANCELED"
         order.save()
-        return Response({'message': 'Order cancelled successfully'})
+        return Response({"message": "Order cancelled successfully"})
 
 
 class OrderItemViewSet(viewsets.ModelViewSet):
