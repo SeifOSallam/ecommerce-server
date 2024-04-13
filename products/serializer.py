@@ -45,5 +45,4 @@ class ProductSerializer(serializers.ModelSerializer):
             "images",
             "average_rate",
             "total_rates",
-            "stripe_id",
         )
