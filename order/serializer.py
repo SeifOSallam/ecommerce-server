@@ -31,7 +31,10 @@ class OrderSerializer(serializers.ModelSerializer):
             "total_price",
             "status",
             "user",
-            "saved_address",
             "items",
+            "address",
+            "address_name",
+            "address_mobile",
+            "address_desc",
         )
         read_only_fields = ["user"]
