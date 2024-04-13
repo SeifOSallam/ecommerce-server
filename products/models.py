@@ -24,4 +24,4 @@ class Image(models.Model):
     product = models.ForeignKey(Product, on_delete=models.RESTRICT)
 
     def __str__(self):
-        return self.image_url
+        return str(self.product)
