@@ -32,9 +32,9 @@ class StripeCheckoutView(APIView):
                 payment_method_types=["card"],
                 mode="payment",
                 success_url=front_url
-                + "orders/"
+                + "/orders/"
                 + "?success=true&session_id={CHECKOUT_SESSION_ID}",
-                cancel_url=front_url + "orders/" + "?canceled=true",
+                cancel_url=front_url + "/orders/" + "?canceled=true",
             )
             # serializer.save(user=self.request.user)
             return Response(
