@@ -4,6 +4,7 @@ from django.db.models import Prefetch, Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 
 from cart.models import CartItem
 from products.serializer import ProductSerializer
@@ -12,8 +13,16 @@ from .models import Order, OrderItem, Product
 from .serializer import OrderItemSerializer, OrderSerializer
 
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
+
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
+    pagination_class = StandardResultsSetPagination
+    page_size = 5
     queryset = Order.objects.all()
 
     def get_queryset(self):
@@ -24,7 +33,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(Q(user=user))
 
         queryset = queryset.prefetch_related(
-            Prefetch("orderitem_set", queryset=OrderItem.objects.all(), to_attr="items")
+            Prefetch("orderitem_set",
+                     queryset=OrderItem.objects.all(), to_attr="items")
         )
 
         return queryset
@@ -44,7 +54,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             total_price += item.product.price * item.quantity
 
         serializer.validated_data["total_price"] = total_price
-        serializer.validated_data["delivery_date"] = datetime.now() + timedelta(days=3)
+        serializer.validated_data["delivery_date"] = datetime.now(
+        ) + timedelta(days=3)
         serializer.validated_data["user"] = request.user
 
         order = serializer.save()
@@ -62,11 +73,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer.data,
             status=status.HTTP_201_CREATED,
         )
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

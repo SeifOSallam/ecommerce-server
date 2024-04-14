@@ -15,7 +15,7 @@ front_url = os.getenv("FRONT_URL")
 class StripeCheckoutView(APIView):
     def get(self, request):
         cart_items = CartItem.objects.filter(user=request.user)
-
+        print(os.getenv("STRIPE_SECRET_KEY"))
         if len(cart_items) == 0:
             return Response(
                 {"message": "Cart is Empty"}, status=status.HTTP_400_BAD_REQUEST
