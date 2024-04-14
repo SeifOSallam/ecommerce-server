@@ -178,3 +178,5 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_HOST_USER = os.getenv("EMAIL_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD")
+
+ALLOWED_HOSTS = ['https://ecommerce-server-dvhp.onrender.com', 'localhost', '127.0.0.1']
