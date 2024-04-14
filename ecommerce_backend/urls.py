@@ -19,7 +19,7 @@ urlpatterns = [
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/schema/", SpectacularAPIView.as_view(), name="api_schema"),
     path(
-        "api/docs/",
+        "",
         SpectacularRedocView.as_view(url_name="api_schema"),
         name="api_docs",
     ),
