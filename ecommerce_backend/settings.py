@@ -169,7 +169,7 @@ cloudinary.config(
     api_secret=os.getenv("API_SECRET"),
 )
 
-CORS_ALLOWED_ORIGINS = [os.getenv("FRONT_URL")]
+CORS_ORIGIN_ALLOW_ALL = True
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
